@@ -1,4 +1,5 @@
-﻿using TLV.Decoder.Core.Common;
+﻿using System;
+using TLV.Decoder.Core.Common;
 using TLV.Decoder.Core.Models;
 
 namespace TLV.Decoder.Core.Decoders
@@ -7,7 +8,14 @@ namespace TLV.Decoder.Core.Decoders
     {
         public Result<string> Decode(TlvPacketChunk tlvPacketChunk)
         {
-            return Result<string>.Success(System.Text.Encoding.ASCII.GetString(tlvPacketChunk.PayloadBytes));
+            try
+            {
+                return Result<string>.Success(System.Text.Encoding.ASCII.GetString(tlvPacketChunk.PayloadBytes));
+            }
+            catch
+            {
+                return Result<string>.Failure(Error.InvalidCompanyId);
+            }
         }
     }
 }

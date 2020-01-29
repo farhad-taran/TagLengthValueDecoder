@@ -8,9 +8,16 @@ namespace TLV.Decoder.Core.Decoders
     {
         public Result<ushort> Decode(TlvPacketChunk tlvPacketChunk)
         {
-            var intValue = BitConverter.ToUInt16(tlvPacketChunk.PayloadBytes, 0);
+            try
+            {
+                var deviceId = BitConverter.ToUInt16(tlvPacketChunk.PayloadBytes, 0);
 
-            return Result<ushort>.Success(intValue);
+                return Result<ushort>.Success(deviceId);
+            }
+            catch
+            {
+                return Result<ushort>.Failure(Error.InvalidDeviceId);
+            }
         }
     }
 }
