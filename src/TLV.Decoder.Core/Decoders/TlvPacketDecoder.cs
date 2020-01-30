@@ -34,7 +34,12 @@ namespace TLV.Decoder.Core.Decoders
 
         public Result<DecodedTlvPacket> Decode(byte[] bytes)
         {
-            var tlvPacket = TlvPacket.Create(bytes);
+            var tlvPacketResult = TlvPacket.Create(bytes);
+
+            if (tlvPacketResult.IsSuccess == false)
+                return Result<DecodedTlvPacket>.Failure(tlvPacketResult.Errors);
+
+            var tlvPacket = tlvPacketResult.Value;
 
             var deviceIdResult = _ushortDecoder.Decode(tlvPacket.DeviceIdChunk);
             var companyIdResult = _asciiStringDecoder.Decode(tlvPacket.CompanyIdChunk);

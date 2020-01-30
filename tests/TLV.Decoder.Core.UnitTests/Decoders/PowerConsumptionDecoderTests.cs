@@ -21,7 +21,7 @@ namespace TLV.Decoder.Core.UnitTests.Decoders
         [InlineData("040103", 3)]
         public void Decode_WhenPowerConsumption_ReturnsCorrectValues(string hexString, int expectedValue)
         {
-            var result = _sut.Decode(TlvPacketChunk.Create(hexString));
+            var result = _sut.Decode(TlvPacketChunk.Create(hexString).Value);
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().Be((PowerConsumption)expectedValue);

@@ -1,44 +1,68 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using TLV.Decoder.Core.Common;
 using TLV.Decoder.Core.Extensions;
 
 namespace TLV.Decoder.Core.Models
 {
     public class TlvPacket
     {
-        public TlvPacketChunk DeviceTelemetriesChunk { get; private set; }
-        public TlvPacketChunk PowerConsumptionChunk { get; private set; }
-        public TlvPacketChunk SoftwareVersionChunk { get; private set; }
-        public TlvPacketChunk CompanyIdChunk { get; private set; }
-        public TlvPacketChunk DeviceIdChunk { get; private set; }
+        public TlvPacketChunk DeviceTelemetriesChunk { get; }
+        public TlvPacketChunk PowerConsumptionChunk { get; }
+        public TlvPacketChunk SoftwareVersionChunk { get; }
+        public TlvPacketChunk CompanyIdChunk { get; }
+        public TlvPacketChunk DeviceIdChunk { get; }
 
-        private TlvPacket() { }
+        private TlvPacket(
+            TlvPacketChunk deviceIdChunk, 
+            TlvPacketChunk companyIdChunk, 
+            TlvPacketChunk softwareVersionChunk, 
+            TlvPacketChunk powerConsumptionChunk, 
+            TlvPacketChunk deviceTelemetriesChunk)
+        {
+            DeviceIdChunk = deviceIdChunk;
+            CompanyIdChunk = companyIdChunk;
+            SoftwareVersionChunk = softwareVersionChunk;
+            PowerConsumptionChunk = powerConsumptionChunk;
+            DeviceTelemetriesChunk = deviceTelemetriesChunk;
+        }
 
-        public static TlvPacket Create(string hexString) => Create(hexString.HexStringToByteArray());
+        public static Result<TlvPacket> Create(string hexString) => Create(hexString.HexStringToByteArray());
 
-        //can change this to return Result<TlvPacket> and do extra validation checks instead of throwing exception bombs
-        public static TlvPacket Create(byte[] bytes)
+        public static Result<TlvPacket> Create(byte[] bytes)
         {
             var remainingBytes = bytes.ToList();
-            var chunks = new List<TlvPacketChunk>();
+            var chunks = new Dictionary<ChunkType, TlvPacketChunk>();
 
             while (remainingBytes.Any())
             {
-                var type = remainingBytes.First();
-                var sizeToTake = (ushort)remainingBytes.Skip(1).First();
-                var payload = remainingBytes.Skip(2).Take(sizeToTake).ToArray();
-                chunks.Add(TlvPacketChunk.Create(type, sizeToTake, payload));
-                remainingBytes.RemoveRange(0, 2 + sizeToTake);
+                var chunkResult = TlvPacketChunk.Create(remainingBytes);
+
+                if (chunkResult.IsSuccess == false)
+                    return Result<TlvPacket>.Failure(chunkResult.Errors);
+
+                if (chunks.ContainsKey(chunkResult.Value.Type))
+                    return Result<TlvPacket>.Failure(Error.CorruptedDataDetected);
+
+                chunks.Add(chunkResult.Value.Type, chunkResult.Value);
+                remainingBytes.RemoveRange(0, chunkResult.Value.ChunkTotalSize);
             }
 
-            return new TlvPacket
-            {
-                DeviceIdChunk = chunks.ElementAt(0),
-                CompanyIdChunk = chunks.ElementAt(1),
-                SoftwareVersionChunk = chunks.ElementAt(2),
-                PowerConsumptionChunk = chunks.ElementAt(3),
-                DeviceTelemetriesChunk = chunks.ElementAt(4)
-            };
+            var actualChunkTypes = chunks.Select(c => c.Key);
+            var expectedChunkTypes = new[] { ChunkType.DeviceId, ChunkType.CompanyId, ChunkType.SoftwareVersion, ChunkType.PowerConsumption, ChunkType.DeviceTelemetries };
+
+            var missingChunkTypes = expectedChunkTypes.Where(ct => actualChunkTypes.Contains(ct) == false).ToArray();
+
+            return missingChunkTypes.Any() ? 
+                Result<TlvPacket>.Failure(Error.MissingDataDetected(missingChunkTypes)) :
+                Result<TlvPacket>.Success(
+                    new TlvPacket(
+                        chunks[ChunkType.DeviceId],
+                        chunks[ChunkType.CompanyId],
+                        chunks[ChunkType.SoftwareVersion],
+                        chunks[ChunkType.PowerConsumption],
+                        chunks[ChunkType.DeviceTelemetries]));
         }
     }
 }
