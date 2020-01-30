@@ -19,7 +19,7 @@ namespace TLV.Decoder.Core.UnitTests.Decoders
         [MemberData(nameof(TestData))]
         public void Decode_WhenSoftwareVersion_ReturnsCorrectValues(string hexString, int[] expectedValue)
         {
-            var result = _sut.Decode(TlvPacketChunk.Create(hexString));
+            var result = _sut.Decode(TlvPacketChunk.Create(hexString).Value);
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().BeEquivalentTo(expectedValue);

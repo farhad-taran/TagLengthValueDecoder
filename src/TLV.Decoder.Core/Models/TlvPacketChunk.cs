@@ -1,41 +1,44 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using TLV.Decoder.Core.Common;
 using TLV.Decoder.Core.Extensions;
 
 namespace TLV.Decoder.Core.Models
 {
     public class TlvPacketChunk
     {
-        public ushort Type { get; private set; }
-        public ushort ExpectedLength { get; private set; }
-        public byte[] PayloadBytes { get; private set; }
+        public ChunkType Type { get; }
+        public ushort ExpectedLength { get; }
+        public byte[] PayloadBytes { get; }
+        public int ChunkTotalSize => PayloadBytes.Length + 2;
 
-        public static TlvPacketChunk Create(ushort type, ushort expectedLength, byte[] payload)
+        private TlvPacketChunk(ChunkType type, ushort expectedLength, byte[] payloadBytes)
         {
-            return new TlvPacketChunk
-            {
-                Type = type,
-                ExpectedLength = expectedLength,
-                PayloadBytes = payload
-            };
+            Type = type;
+            ExpectedLength = expectedLength;
+            PayloadBytes = payloadBytes;
         }
 
-        public static TlvPacketChunk Create(string hexString) => Create(hexString.HexStringToByteArray());
+        public static Result<TlvPacketChunk> Create(string hexString) => Create(hexString.HexStringToByteArray());
 
-        //can change this to return Result<TlvPacketChunk> and do extra validation checks instead of throwing exception bombs
-        public static TlvPacketChunk Create(IEnumerable<byte> bytes)
+        public static Result<TlvPacketChunk> Create(IEnumerable<byte> bytes)
         {
-            var chunkBytes = bytes.ToArray();
-            ushort type = chunkBytes.First();
-            ushort length = chunkBytes.Skip(1).First();
-            var content = chunkBytes.Skip(2).ToArray();
-
-            return new TlvPacketChunk
+            try
             {
-                Type = type,
-                ExpectedLength = length,
-                PayloadBytes = content
-            };
+                var chunkBytes = bytes.ToArray();
+                ChunkType type = (ChunkType)chunkBytes.First();
+                ushort expectedLength = chunkBytes.Skip(1).First();
+                var payloadBytes = chunkBytes.Skip(2).Take(expectedLength).ToArray();
+
+                return payloadBytes.Length != expectedLength ?
+                    Result<TlvPacketChunk>.Failure(Error.CorruptedDataDetected) :
+                    Result<TlvPacketChunk>.Success(new TlvPacketChunk(type, expectedLength, payloadBytes));
+            }
+            catch
+            {
+                return Result<TlvPacketChunk>.Failure(Error.CorruptedDataDetected);
+            }
         }
     }
 }

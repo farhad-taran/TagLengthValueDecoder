@@ -18,7 +18,7 @@ namespace TLV.Decoder.Core.UnitTests.Decoders
         [InlineData("01024B08", 2123)]
         public void Decode_WhenDeviceId_ReturnsCorrectValues(string hexString, ushort expectedValue)
         {
-            var result = _sut.Decode(TlvPacketChunk.Create(hexString));
+            var result = _sut.Decode(TlvPacketChunk.Create(hexString).Value);
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().Be(expectedValue);
