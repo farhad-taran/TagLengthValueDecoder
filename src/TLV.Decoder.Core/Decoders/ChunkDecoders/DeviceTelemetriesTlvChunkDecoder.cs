@@ -4,9 +4,9 @@ using System.Linq;
 using TLV.Decoder.Core.Common;
 using TLV.Decoder.Core.Models;
 
-namespace TLV.Decoder.Core.Decoders
+namespace TLV.Decoder.Core.Decoders.ChunkDecoders
 {
-    public class DeviceTelemetriesDecoder : IDecoder<DeviceTelemetry[]>
+    public class DeviceTelemetriesTlvChunkDecoder : ITlvChunkDecoder<DeviceTelemetry[]>
     {
         public Result<DeviceTelemetry[]> Decode(TlvPacketChunk tlvPacketChunk)
         {

@@ -1,10 +1,9 @@
-﻿using System;
-using TLV.Decoder.Core.Common;
+﻿using TLV.Decoder.Core.Common;
 using TLV.Decoder.Core.Models;
 
-namespace TLV.Decoder.Core.Decoders
+namespace TLV.Decoder.Core.Decoders.ChunkDecoders
 {
-    public class CompanyIdDecoder : IDecoder<string>
+    public class CompanyIdTlvChunkDecoder : ITlvChunkDecoder<string>
     {
         public Result<string> Decode(TlvPacketChunk tlvPacketChunk)
         {

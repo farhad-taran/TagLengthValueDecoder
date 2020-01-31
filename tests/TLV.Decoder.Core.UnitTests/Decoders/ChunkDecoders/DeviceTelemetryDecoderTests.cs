@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 using FluentAssertions;
-using TLV.Decoder.Core.Decoders;
+using TLV.Decoder.Core.Decoders.ChunkDecoders;
 using TLV.Decoder.Core.Models;
 using Xunit;
 
-namespace TLV.Decoder.Core.UnitTests.Decoders
+namespace TLV.Decoder.Core.UnitTests.Decoders.ChunkDecoders
 {
     public class DeviceTelemetryDecoderTests
     {
-        private DeviceTelemetriesDecoder _sut;
+        private DeviceTelemetriesTlvChunkDecoder _sut;
 
         public DeviceTelemetryDecoderTests()
         {
-            _sut = new DeviceTelemetriesDecoder();
+            _sut = new DeviceTelemetriesTlvChunkDecoder();
         }
 
         [Theory]

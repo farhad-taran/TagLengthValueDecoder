@@ -1,6 +1,14 @@
 ﻿namespace TLV.Decoder.Core.Models
 {
-    public class DecodedTlvPacket
+    /// <summary>
+    /// Marker class to allow for polymorphism
+    /// </summary>
+    public abstract class DecodedTlvPacket
+    {
+
+    }
+
+    public class DefaultDecodedTlvPacket : DecodedTlvPacket
     {
         public int DeviceId { get; set; }
         public string CompanyId { get; set; }

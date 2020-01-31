@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 using FluentAssertions;
-using TLV.Decoder.Core.Decoders;
+using TLV.Decoder.Core.Decoders.ChunkDecoders;
 using TLV.Decoder.Core.Models;
 using Xunit;
 
-namespace TLV.Decoder.Core.UnitTests.Decoders
+namespace TLV.Decoder.Core.UnitTests.Decoders.ChunkDecoders
 {
     public class SoftwareVersionDecoderTests
     {
-        private SoftwareVersionDecoder _sut;
+        private SoftwareVersionTlvChunkDecoder _sut;
 
         public SoftwareVersionDecoderTests()
         {
-            _sut = new SoftwareVersionDecoder();
+            _sut = new SoftwareVersionTlvChunkDecoder();
         }
 
         [Theory]

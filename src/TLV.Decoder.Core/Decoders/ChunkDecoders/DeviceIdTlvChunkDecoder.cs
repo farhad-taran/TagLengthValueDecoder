@@ -2,9 +2,9 @@
 using TLV.Decoder.Core.Common;
 using TLV.Decoder.Core.Models;
 
-namespace TLV.Decoder.Core.Decoders
+namespace TLV.Decoder.Core.Decoders.ChunkDecoders
 {
-    public class DeviceIdDecoder : IDecoder<ushort>
+    public class DeviceIdTlvChunkDecoder : ITlvChunkDecoder<ushort>
     {
         public Result<ushort> Decode(TlvPacketChunk tlvPacketChunk)
         {

@@ -3,18 +3,36 @@ using System.Linq;
 using FluentAssertions;
 using TLV.Decoder.Core.Common;
 using TLV.Decoder.Core.Decoders;
+using TLV.Decoder.Core.Decoders.ChunkDecoders;
+using TLV.Decoder.Core.Decoders.TlvPacketDecodingStrategyFactories;
+using TLV.Decoder.Core.Decoders.TlvPacketDecodingStrategyFactories.TlvPacketDecodingStrategies;
 using TLV.Decoder.Core.Models;
+using TLV.Decoder.Core.Models.TlvPacketFactories;
+using TLV.Decoder.Core.Models.TlvPacketFactories.TlvPacketFactoryStrategies;
 using Xunit;
 
 namespace TLV.Decoder.Core.UnitTests.Decoders
 {
-    public class TlvPacketDecoderTests
+    public class TlvPacketDecoderServiceTests
     {
-        private TlvPacketDecoder _sut;
+        private TlvPacketDecoderService _sut;
 
-        public TlvPacketDecoderTests()
+        public TlvPacketDecoderServiceTests()
         {
-            _sut = new TlvPacketDecoder(new DeviceIdDecoder(), new CompanyIdDecoder(), new SoftwareVersionDecoder(), new PowerConsumptionDecoder(), new DeviceTelemetriesDecoder());
+            _sut = new TlvPacketDecoderService(
+                new TlvPacketFactory(new []
+                {
+                    new DefaultTlvTlvPacketFactoryStrategy()
+                }),
+                new TlvPacketDecodingStrategyFactory(new []
+                {
+                    new DefaultTlvPacketDecoder(
+                        new DeviceIdTlvChunkDecoder(), 
+                        new CompanyIdTlvChunkDecoder(), 
+                        new SoftwareVersionTlvChunkDecoder(), 
+                        new PowerConsumptionTlvChunkDecoder(), 
+                        new DeviceTelemetriesTlvChunkDecoder())
+                }));
         }
 
         [Theory]
@@ -24,11 +42,15 @@ namespace TLV.Decoder.Core.UnitTests.Decoders
             var result = _sut.Decode(hexString);
 
             result.IsSuccess.Should().BeTrue();
-            result.Value.DeviceId.Should().Be(deviceId);
-            result.Value.CompanyId.Should().Be(companyId);
-            result.Value.SoftwareVersion.Should().BeEquivalentTo(softwareVersion);
-            result.Value.PowerConsumption.Should().Be(powerConsumption);
-            result.Value.DeviceTelemetries.Should().BeEquivalentTo(deviceTelemetries);
+
+            var value = result.Value as DefaultDecodedTlvPacket;
+
+            value.Should().NotBeNull();
+            value.DeviceId.Should().Be(deviceId);
+            value.CompanyId.Should().Be(companyId);
+            value.SoftwareVersion.Should().BeEquivalentTo(softwareVersion);
+            value.PowerConsumption.Should().Be(powerConsumption);
+            value.DeviceTelemetries.Should().BeEquivalentTo(deviceTelemetries);
         }
 
         public static IEnumerable<object[]> HexStringTestData()
@@ -69,11 +91,15 @@ namespace TLV.Decoder.Core.UnitTests.Decoders
             var result = _sut.Decode(bytes);
 
             result.IsSuccess.Should().BeTrue();
-            result.Value.DeviceId.Should().Be(deviceId);
-            result.Value.CompanyId.Should().Be(companyId);
-            result.Value.SoftwareVersion.Should().BeEquivalentTo(softwareVersion);
-            result.Value.PowerConsumption.Should().Be(powerConsumption);
-            result.Value.DeviceTelemetries.Should().BeEquivalentTo(deviceTelemetries);
+
+            var value = result.Value as DefaultDecodedTlvPacket;
+
+            value.Should().NotBeNull();
+            value.DeviceId.Should().Be(deviceId);
+            value.CompanyId.Should().Be(companyId);
+            value.SoftwareVersion.Should().BeEquivalentTo(softwareVersion);
+            value.PowerConsumption.Should().Be(powerConsumption);
+            value.DeviceTelemetries.Should().BeEquivalentTo(deviceTelemetries);
         }
 
         public static IEnumerable<object[]> BytesTestData()

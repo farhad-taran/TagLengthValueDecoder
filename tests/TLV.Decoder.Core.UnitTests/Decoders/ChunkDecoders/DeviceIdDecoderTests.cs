@@ -1,17 +1,17 @@
 using FluentAssertions;
-using TLV.Decoder.Core.Decoders;
+using TLV.Decoder.Core.Decoders.ChunkDecoders;
 using TLV.Decoder.Core.Models;
 using Xunit;
 
-namespace TLV.Decoder.Core.UnitTests.Decoders
+namespace TLV.Decoder.Core.UnitTests.Decoders.ChunkDecoders
 {
     public class DeviceIdDecoderTests
     {
-        private DeviceIdDecoder _sut;
+        private DeviceIdTlvChunkDecoder _sut;
 
         public DeviceIdDecoderTests()
         {
-            _sut = new DeviceIdDecoder();
+            _sut = new DeviceIdTlvChunkDecoder();
         }
         
         [Theory]

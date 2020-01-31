@@ -1,17 +1,17 @@
 using FluentAssertions;
-using TLV.Decoder.Core.Decoders;
+using TLV.Decoder.Core.Decoders.ChunkDecoders;
 using TLV.Decoder.Core.Models;
 using Xunit;
 
-namespace TLV.Decoder.Core.UnitTests.Decoders
+namespace TLV.Decoder.Core.UnitTests.Decoders.ChunkDecoders
 {
     public class PowerConsumptionDecoderTests
     {
-        private PowerConsumptionDecoder _sut;
+        private PowerConsumptionTlvChunkDecoder _sut;
 
         public PowerConsumptionDecoderTests()
         {
-            _sut = new PowerConsumptionDecoder();
+            _sut = new PowerConsumptionTlvChunkDecoder();
         }
 
         [Theory]
